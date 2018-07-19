@@ -2,3 +2,4 @@
 __pycache__/
 
 **/weights-improvement/*
+!**/weights-improvement/README.md
