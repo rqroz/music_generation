@@ -3,8 +3,9 @@ from training.data_preparation import prepare_sequences
 from training.data_modelling import create_network_model
 
 from music21 import stream, converter
+from music21.midi.realtime import StreamPlayer
 
-import numpy
+import sys, numpy
 
 def generate_encoded_notes(total_notes, model, network_input, pitch_names, n_vocab):
     """
@@ -27,7 +28,6 @@ def generate_encoded_notes(total_notes, model, network_input, pitch_names, n_voc
     prediction_output = []
 
     for note_index in range(total_notes):
-        print("Generating note %d"%(note_index+1))
         # Reshape the pattern into a valid network input and normalize it
         prediction_input = numpy.reshape(pattern, (1, len(pattern), 1))
         prediction_input = prediction_input / float(n_vocab)
@@ -95,6 +95,8 @@ def decode_notes_list(encoded_notes):
     return output_notes
 
 def generate_song(total_notes):
+    print("Resolving input notes...")
+
     NOTES_FILE_PATH = 'training/data/notes.txt'
     # notes: Set of encoded values related to distinct notes/chords in the dataset
     notes = read_notes_file(NOTES_FILE_PATH) if notes_file_exists(NOTES_FILE_PATH) else generate_notes_set(NOTES_FILE_PATH)
@@ -105,6 +107,8 @@ def generate_song(total_notes):
     # Get all pitch names
     pitch_names = sorted(set(notes))
 
+    print("Resolving network model...")
+
     # Resolve network input and output objects
     network_input, network_output = prepare_sequences(notes, n_vocab)
 
@@ -113,14 +117,27 @@ def generate_song(total_notes):
     model.load_weights('weights.hdf5')
 
     # Generate encoded notes
+    print("Generating notes from network...")
     encoded_notes = generate_encoded_notes(total_notes, model, network_input, pitch_names, n_vocab)
-    print("Encoded Notes:\n%s"%encoded_notes)
 
     # Generate Chord/Note objects list
+    print("Decoding generated notes...")
     generated_notes = decode_notes_list(encoded_notes)
 
+    print("Creating stream object...")
     midi_stream = stream.Stream(generated_notes)
-    midi_stream.write('midi', fp='test_output.mid')
+
+    try:
+        midi_stream.write('midi', fp='results/output.mid')
+    except:
+        print("ERROR: could not create the file. Make sure there is a folder named 'results' in the same level as the main.py file.")
+    else:
+        print("File Created! Go to the results folder to check it out!")
 
 if __name__ == '__main__':
-    generate_song(500)
+    try:
+        total_notes = int(sys.argv[1]) if len(sys.argv) > 1 else 50
+    except:
+        print("ERROR: This script receives one argument only and it must be an integer.")
+    else:
+        generate_song(total_notes)
