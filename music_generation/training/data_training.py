@@ -24,9 +24,9 @@ def train_network():
     """
         Trains a Neural Network to generate music
     """
-
+    NOTES_FILE_PATH = 'data/notes.txt'
     # notes: Set of encoded values related to distinct notes/chords in the dataset
-    notes = read_notes_file() if notes_file_exists() else generate_notes_set()
+    notes = read_notes_file(NOTES_FILE_PATH) if notes_file_exists(NOTES_FILE_PATH) else generate_notes_set(NOTES_FILE_PATH)
 
     # Get size of dataset
     n_vocab = len(notes)

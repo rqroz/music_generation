@@ -14,9 +14,7 @@ Notes
  Chord: Container for a set of notes played at the same time.
  """
 
-NOTES_FILE_PATH = 'data/notes.txt'
-
-def generate_notes_set():
+def generate_notes_set(notes_file_path):
     notes = set()
 
     for idx, filename in enumerate(glob.glob('midi_songs/*.mid')):
@@ -52,21 +50,21 @@ def generate_notes_set():
                 notes.add('.'.join(str(n) for n in element.normalOrder))
 
     # Outputing the results to a text file
-    with open(NOTES_FILE_PATH, 'w') as notes_file:
+    with open(notes_file_path, 'w') as notes_file:
         for n in notes:
             notes_file.write("%s\n"%n)
 
     return list(notes)
 
 
-def read_notes_file():
+def read_notes_file(notes_file_path):
     notes = []
-    with open(NOTES_FILE_PATH, 'r') as notes_file:
+    with open(notes_file_path, 'r') as notes_file:
         for line in notes_file:
             encoding = line.replace('\n', '')
             notes.append(encoding)
 
     return notes
 
-def notes_file_exists():
-    return os.path.isfile(NOTES_FILE_PATH)
+def notes_file_exists(notes_file_path):
+    return os.path.isfile(notes_file_path)
